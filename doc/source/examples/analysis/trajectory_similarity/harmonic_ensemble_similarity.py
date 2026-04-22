@@ -1,20 +1,12 @@
 import sys
 sys.path.append('/app')
 from speedupy.speedupy import maybe_deterministic
-import sys
-sys.path.append('/app')
 from speedupy.speedupy import initialize_speedupy, deterministic
 import numpy as np
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
 from MDAnalysis.tests.datafiles import PSF, DCD, DCD2, GRO, XTC, PSF_NAMD_GBIS, DCD_NAMD_GBIS, PDB_small, CRD
 from MDAnalysis.analysis import encore
-import time
-
-@maybe_deterministic
-def func_1():
-    """Cell 1: imports — executados no topo do módulo."""
-    pass
 
 @maybe_deterministic
 def func_2():
@@ -32,17 +24,10 @@ def func_3(u1, u2, u3):
     print(len(u1.trajectory), len(u2.trajectory), len(u3.trajectory))
 
 @deterministic
-def func_4(func_globals=None):
-    """Cell 4: calcula a Harmonic Ensemble Similarity (gargalo).
-
-    Os Universes são recriados aqui dentro para que o SpeeduPy não tente
-    serializá-los, apenas o parâmetro 'select' (string) é passado.
+def func_4(u1, u2, u3, u4, func_globals=None):
+    """Cell 4: calcula a Harmonic Ensemble Similarity
     """
-    u1 = mda.Universe(PSF, DCD)
-    u2 = mda.Universe(PSF, DCD2)
-    u3 = mda.Universe(GRO, XTC)
-    u4 = mda.Universe(PSF_NAMD_GBIS, DCD_NAMD_GBIS)
-    (hes, details) = encore.hes([u1, u2, u3, u4], select='backbone', align=True, cov_estimator='shrinkage', weights='mass')
+    (hes, details) = encore.hes([u1, u2, u3, u4], select='backbone or name CB or name CG', align=True, cov_estimator='shrinkage', weights='mass')
     return (hes, details)
 
 @maybe_deterministic
@@ -67,18 +52,13 @@ def func_7(hes, labels):
     plt.yticks(np.arange(4), labels)
     plt.title('Harmonic ensemble similarity')
     cbar = fig.colorbar(im)
-    plt.show()
+    plt.savefig('out1.png')
 
 @initialize_speedupy
 def main():
-    func_1()
     (u1, u2, u3, u4, labels) = func_2()
     func_3(u1, u2, u3)
-    print('Iniciando o cálculo HES via SpeeduPy...')
-    start = time.time()
-    (hes, details) = func_4(func_globals=globals())
-    end = time.time()
-    print(f'Tempo de execução: {end - start:.4f}s')
+    (hes, details) = func_4(u1, u2, u3, u4, func_globals=globals())
     func_5(hes)
     func_6(details)
     func_7(hes, labels)
