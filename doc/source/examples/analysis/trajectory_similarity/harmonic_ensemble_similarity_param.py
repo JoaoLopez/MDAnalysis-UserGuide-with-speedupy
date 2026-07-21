@@ -55,7 +55,8 @@ def func_7(hes, labels):
     plt.savefig('out1.png')
 
 @initialize_speedupy
-def main(select):
+def main():
+    select = sys.argv[1]
     (u1, u2, u3, u4, labels) = func_2()
     func_3(u1, u2, u3)
     (hes, details) = func_4(u1, u2, u3, u4, select, func_globals=globals())
@@ -63,5 +64,4 @@ def main(select):
     func_6(details)
     func_7(hes, labels)
 if __name__ == '__main__':
-    select = sys.argv[1]
-    main(select)
+    main()
